@@ -1,11 +1,12 @@
-CXXFLAGS = -g -Wall -Wfatal-errors -std=c++17
 
+CC = g++
+CFLAGS = -Wall -Wextra -Werror -std=c++17
 ALL = var
 
 all: $(ALL)
 
-var: test_case_1.cpp Makefile
-	$(CXX) $(CXXFLAGS) -o $@ $@.cpp
+var : src/test_case_1.cpp Makefile
+	$(CC) $(CFLAGS) -o var.exe src/test_case_1.cpp
 
 clean:
 	$(RM) $(ALL) *.o

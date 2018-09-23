@@ -1,0 +1,12 @@
+language: cpp
+sudo: required
+dist: trusty
+compiler:
+- g++-7.3.0
+os:
+- linux
+branches:
+  only:
+  - master
+notifications:
+  email: false

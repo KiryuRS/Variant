@@ -1,6 +1,6 @@
 
 CC = g++
-CFLAGS = -Wall -Wextra -Werror -std=c++17
+CFLAGS = -Wall -Wextra -Werror
 ALL = var
 
 all: $(ALL)

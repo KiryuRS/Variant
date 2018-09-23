@@ -3,6 +3,8 @@ This documentation describes about a typeless Variant that provides an alternati
 
 As there are variations of Variants in C++, most of the codes would require minimum hard-coding of supported data types (i.e. multiple switch cases or similar to retrieve all possible types). Despite having some format to follow, the Variant class allows any supported UDT types, as long as they adhere to the criteria and adding the type into the list of supported Variant types.
 
+# Latest Build Status
+[![Build Status](https://travis-ci.com/KiryuRS/Variant.svg?branch=master)](https://travis-ci.com/KiryuRS/Variant)
 
 ## Future Implementations
 * Allowing template type deduction for Functors when using visit

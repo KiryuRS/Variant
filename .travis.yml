@@ -4,9 +4,6 @@ sudo: required
 
 dist: trusty
 
-compiler:
-- g++-7.3.0
-
 os:
 - linux
 
@@ -23,8 +20,10 @@ before_install:
   
 install:
   - sudo apt-get install -qq g++-7
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++7 30
   - cd scr
+  
+compiler:
+- g++-7.3.0
   
 script:
   - make

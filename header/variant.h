@@ -45,9 +45,8 @@
 #include <typeinfo>			// typeid
 #include <utility>			// std::index_sequence_for, std::index_sequence
 #include <array>			// std::array
-#include <algorithm>		// std::find
-#include <typeindex>		// std::type_index
-#include <array>			// std::array
+#include <algorithm>			// std::find
+#include <typeindex>			// std::type_index
 
 namespace
 {

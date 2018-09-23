@@ -29,7 +29,7 @@ short, double, \
 std::string, Point
 
 // Include only after you have define all of the classes that you wish Variant to support
-#include "variant.h"
+#include "../header/variant.h"
 
 int main(void)
 {

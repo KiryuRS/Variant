@@ -12,4 +12,4 @@ clean:
 	$(RM) $(ALL) *.o
 
 test: all
-	bash test
+	./var

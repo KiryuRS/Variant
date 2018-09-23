@@ -15,5 +15,5 @@ clean:
 	$(RM) $(ALL) *.o
 
 test: all
-	./var
-	./fun_var
+	./var.exe
+	./fun_var.exe

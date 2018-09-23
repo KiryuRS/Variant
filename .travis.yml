@@ -1,6 +1,10 @@
 language: cpp
-sudo: required
+sudo: false
 dist: trusty
+addons:
+  apt:
+    packages:
+      - g++-7.3.0
 compiler:
 - g++-7.3.0
 os:
@@ -10,3 +14,9 @@ branches:
   - master
 notifications:
   email: false
+install:
+  - "[ $CXX = g++ ] && export CXX=g++-7.3.0 || true"
+  - cd scr
+script:
+  - make
+  - make test

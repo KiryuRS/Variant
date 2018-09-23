@@ -1,6 +1,6 @@
 CXXFLAGS = -g -Wall -Wfatal-errors -std=c++17
 
-ALL = hello
+ALL = var
 
 all: $(ALL)
 

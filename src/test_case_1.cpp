@@ -19,6 +19,7 @@ struct Point
 	friend std::ostream& operator<<(std::ostream& os, const Point& p)
 	{
 		os << "x: " << p.x << ", y: " << p.y; 
+		return os;
 	}
 };
 
@@ -46,5 +47,7 @@ int main(void)
 	v1 = std::string{ "Hello World!" };					// v1 is now std::string
 	std::cout << v1.get_value<std::string>() << "\n";	// Prints out - Hello World!
 	std::cout << v2.get_value<Point>() << "\n";			// Prints out - x: 5.0, y: 10.0
+
+	return 0;
 }
 

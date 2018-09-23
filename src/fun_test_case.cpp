@@ -9,7 +9,7 @@ short, double, \
 std::string, std::vector<int>, std::array<int, 5>, \
 std::vector<std::array<float, 5>>
 
-#include "../header/Variant.h"
+#include "../header/variant.h"
 
 int main(void)
 {
@@ -25,4 +25,6 @@ int main(void)
 	crazy = not_too_bad;
 
 	std::cout << "No throws!" << std::endl;
+
+	return 0;
 }

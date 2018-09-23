@@ -20,9 +20,6 @@ before_install:
   
 install:
   - sudo apt-get install -qq g++-7
-
-compiler:
-- g++-7.3.0
   
 script:
   - make

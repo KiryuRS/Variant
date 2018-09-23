@@ -5,8 +5,8 @@ ALL = var
 
 all: $(ALL)
 
-var : src/test_case_1.cpp Makefile
-	$(CC) $(CFLAGS) -o var.exe src/test_case_1.cpp
+var : test_case_1.cpp Makefile
+	$(CC) $(CFLAGS) -o var.exe test_case_1.cpp
 
 clean:
 	$(RM) $(ALL) *.o

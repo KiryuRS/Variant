@@ -4,9 +4,9 @@ dist: trusty
 addons:
   apt:
     packages:
-      - g++-7.3.0
+      - g++-7
 compiler:
-- g++-7.3.0
+- g++-7
 os:
 - linux
 branches:

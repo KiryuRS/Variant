@@ -20,8 +20,7 @@ before_install:
   
 install:
   - sudo apt-get install -qq g++-7
-  - cd src
-  
+
 compiler:
 - g++-7.3.0
   

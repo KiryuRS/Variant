@@ -151,5 +151,3 @@ decltype(auto) visit(std::tuple<Args...>& tup, size_t index, Functor func);
 
 
 # Known Issues
-* Does not work when you pass the type in as const char* (i.e. c-style string) when compiled with C++14 as _if constexpr_ is not available in C++14.
-* C++14 has yet to be fully tested for potential bugs.

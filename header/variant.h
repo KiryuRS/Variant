@@ -36,6 +36,24 @@
 #ifndef _VARIANT_H
 #define _VARIANT_H
 
+// GNU Version
+#ifdef __GNUG__
+#if __cplusplus >= 201703
+#define C17
+#elif __cplusplus >= 201402
+#define C14
+#endif
+#endif
+
+// MS Version
+#ifdef _MSC_VER
+#if _MSC_VER >= 1914
+#define C17
+#elif _MSC_VER >= 1900
+#define C14
+#endif
+#endif
+
 #include "variant_common.h"
 
 #include <iostream>			// std::cerr
@@ -172,7 +190,7 @@ public:
 	Variant(const T& value)
 		: data{ }, type_id{ }
 	{
-#if (defined(__GNUG__) && __cplusplus >= 201703) || (defined(_MSC_VER) && _MSC_VER >= 1914)
+#ifdef C17
 		if constexpr (std::is_same<char*, U>::value)
 		{
 			type_id = GetSearchedIndex<std::string>(var_tuple, std::index_sequence_for<VARIANTTYPES>{});
@@ -189,7 +207,7 @@ public:
 #endif
 	}
 
-#if (defined(__GNUG__) && (__cplusplus >= 201402 &&__cplusplus < 201703)) || (defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 1914))
+#ifdef C14
 	Variant(const char* value)
 		: data{ new VariantImpl<std::string>(value) },
 		  type_id{ GetSearchedIndex<std::string>(var_tuple, std::index_sequence_for<VARIANTTYPES>{}) }

@@ -97,7 +97,7 @@ namespace
 	template <typename T, typename ... Args, size_t ... Is>
 	bool LegalVariantHelper(T&& arg, const std::tuple<Args...>& tup, std::index_sequence<Is...>)
 	{
-#if (defined(__GNUG__) && __cplusplus >= 201703) || (defined(_MSC_VER) && _MSC_VER >= 1914)
+#if C17
 		return [](const auto& a0, const auto& ... rest)
 				{
 					return ((typeid(a0) == typeid(rest)) || ...);

@@ -13,7 +13,7 @@ fun_var : src/fun_test_case.cpp Makefile
 	$(CC) $(C17FLAGS) -o fun_var.exe src/fun_test_case.cpp
 
 var_14 : src/test_case_1.cpp Makefile
-	$(CC) $(C14FLAGS) -o var.exe src/test_case_1.cpp
+	$(CC) $(C14FLAGS) -o var_14.exe src/test_case_1.cpp
 
 clean:
 	$(RM) $(ALL) *.o

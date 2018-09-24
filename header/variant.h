@@ -170,20 +170,10 @@ public:
 
 	template <typename T, typename U = std::decay_t<T>>
 	Variant(const T& value)
-		: data{ },
-		  type_id{ }
+		: data{ }, type_id{ }
 	{
-		// @edit: You could replace this section with your own error catching
-		if (!LegalVariant(value))
-		{
-			std::cerr << "Unable to convert this type into a Variant!" << std::endl;
-			throw;
-		}
-
-		constexpr bool char_star_check = std::is_same<char*, U>::value || std::is_same<const char*, U>::value;
-
 #if (defined(__GNUG__) && __cplusplus >= 201703) || (defined(_MSC_VER) && _MSC_VER >= 1914)
-		if constexpr (char_star_check)
+		if constexpr (std::is_same<char*, U>::value)
 		{
 			type_id = GetSearchedIndex<std::string>(var_tuple, std::index_sequence_for<VARIANTTYPES>{});
 			data.reset( new VariantImpl<std::string>(value) );
@@ -198,6 +188,13 @@ public:
 		data.reset( new VariantImpl<U>(value) );
 #endif
 	}
+
+#if (defined(__GNUG__) && (__cplusplus >= 201402 &&__cplusplus < 201703)) || (defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 1914))
+	Variant(const char* value)
+		: data{ new VariantImpl<std::string>(value) },
+		  type_id{ GetSearchedIndex<std::string>(var_tuple, std::index_sequence_for<VARIANTTYPES>{}) }
+	{ }
+#endif
 
 	Variant& operator=(const Variant& rhs)
 	{

@@ -1,15 +1,19 @@
 
 CC = g++
-CFLAGS = -Wall -Wextra -Werror -std=c++17
-ALL = var fun_var
+C17FLAGS = -Wall -Wextra -Werror -std=c++17
+C14FLAGS = -Wall -Wextra -Werror -std=c++14
+ALL = var fun_var var_14
 
 all: $(ALL)
 
 var : src/test_case_1.cpp Makefile
-	$(CC) $(CFLAGS) -o var.exe src/test_case_1.cpp
+	$(CC) $(C17FLAGS) -o var.exe src/test_case_1.cpp
 
 fun_var : src/fun_test_case.cpp Makefile
-	$(CC) $(CFLAGS) -o fun_var.exe src/fun_test_case.cpp
+	$(CC) $(C17FLAGS) -o fun_var.exe src/fun_test_case.cpp
+
+var_14 : src/test_case_1.cpp Makefile
+	$(CC) $(C14FLAGS) -o var.exe src/test_case_1.cpp
 
 clean:
 	$(RM) $(ALL) *.o
@@ -17,3 +21,4 @@ clean:
 test: all
 	./var.exe
 	./fun_var.exe
+	./var_14.exe

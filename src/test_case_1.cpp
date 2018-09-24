@@ -48,6 +48,10 @@ int main(void)
 	std::cout << v1.get_value<std::string>() << "\n";	// Prints out - Hello World!
 	std::cout << v2.get_value<Point>() << "\n";			// Prints out - x: 5.0, y: 10.0
 
+	Variant v3{ "Foo is Boo's child because F comes after B. Wut"};
+	std::cout << v3.get_value<std::string>() << "\n";	// Prints out - Foo is Boo's child because F comes after B. Wut
+	std::cout << std::endl;
+
 	return 0;
 }
 

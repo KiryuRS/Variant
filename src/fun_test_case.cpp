@@ -24,7 +24,8 @@ int main(void)
 	crazy = not_so_bad;
 	crazy = not_too_bad;
 
-	std::cout << "No throws!" << std::endl;
+	std::cout << "No throws!" << "\n";
+	std::cout << std::endl;
 
 	return 0;
 }

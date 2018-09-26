@@ -126,8 +126,7 @@ void operator==(const T& value);
 template <typename T>
 void operator!=(const T& value);
 
-template <typename T>
-bool same_type(const T& value) const;      // Checks if the given value and Variant have the same type
+bool same_type(const Variant& value) const;      // Checks if the given value and Variant have the same type
 ```
 - Non-Member Functions
 ```C++

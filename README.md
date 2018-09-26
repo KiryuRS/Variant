@@ -115,7 +115,7 @@ std::type_index type() const;              // Returns a std::type_index that the
    Description:                    Compares the type (and then value) of Variant and the passed in parameter
 */
 template <typename T>
-void operator==(const T& value);
+bool operator==(const T& value);
 
 /*
    Function name:                  operator!=
@@ -124,9 +124,13 @@ void operator==(const T& value);
    Description:                    Compares the type (and then value) of Variant and the passed in parameter
 */
 template <typename T>
-void operator!=(const T& value);
+bool operator!=(const T& value);
 
-bool same_type(const Variant& value) const;      // Checks if the given value and Variant have the same type
+bool operator==(const Variant& rhs);
+bool operator!=(const Variant& rhs);
+
+template <typename T
+bool same_type(const T& value) const;       // Checks if the given value and Variant have the same type
 ```
 - Non-Member Functions
 ```C++

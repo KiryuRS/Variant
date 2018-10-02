@@ -12,7 +12,7 @@ As there are variations of Variants in C++, most of the codes would require mini
 
 
 ## Stable Versions
-* Compilers with C++17 fully supported
+* Compilers with C++14 fully supported
 
 ### Supported C++ Versions
 * GNU with at least C++14
@@ -153,4 +153,6 @@ decltype(auto) visit(std::tuple<Args...>& tup, size_t index, Functor func);
 ```
 
 
-# Known Issues
+# Limitations
+- Not able to support types with pointers (except for char* which is automatically converted to string)
+- Not able to support function pointers

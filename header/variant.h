@@ -125,7 +125,7 @@ namespace
 
 	template <typename Tuple, typename Functor, size_t ... Is>
 	std::common_type_t<decltype(visit_one<Tuple, Functor, Is>(tup, func))...>
-	visit(Tuple& tup, size_t index, Functor func, std::index_sequence<Is...>)
+	visit_helper(Tuple& tup, size_t index, Functor func, std::index_sequence<Is...>)
 	{
 		using type = std::common_type_t<decltype(visit_one<Tuple, Functor, Is>(tup, func))...>;
 		using FT = type(*)(Tuple&, Functor);
@@ -148,7 +148,7 @@ bool LegalVariant(T&& arg)
 template <typename Functor, typename ... Args>
 decltype(auto) visit(std::tuple<Args...>& tup, size_t index, Functor func)
 {
-	return visit(tup, index, func, std::index_sequence_for<Args...>{});
+	return visit_helper(tup, index, func, std::index_sequence_for<Args...>{});
 }
 
 class Variant final

@@ -146,9 +146,9 @@ bool LegalVariant(T&&);
    Function name:                  visit
    Overloaded functions available: -
    Input:                          std::tuple, size_t, typename Functor
-   Description:                    Used in conjunction with tuple (similar to how std::visit works)
+   Description:                    Used in conjunction with tuple (similar to how std::visit works). To be used when the return type is common type
 */
-template <typename ReturnType, typename Functor, typename ... Args>
+template <typename Functor, typename ... Args>
 decltype(auto) visit(std::tuple<Args...>& tup, size_t index, Functor func);
 ```
 

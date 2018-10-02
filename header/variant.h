@@ -65,6 +65,7 @@
 #include <array>			// std::array
 #include <algorithm>			// std::find
 #include <typeindex>			// std::type_index
+#include <type_traits>			// std::common_type, std::invoke_result, std::result_of
 
 namespace
 {
@@ -124,8 +125,7 @@ namespace
 	}
 
 	template <typename Tuple, typename Functor, size_t ... Is>
-	std::common_type_t<decltype(visit_one<Tuple, Functor, Is>(tup, func))...>
-	visit_helper(Tuple& tup, size_t index, Functor func, std::index_sequence<Is...>)
+	decltype(auto) visit_helper(Tuple& tup, size_t index, Functor func, std::index_sequence<Is...>)
 	{
 		using type = std::common_type_t<decltype(visit_one<Tuple, Functor, Is>(tup, func))...>;
 		using FT = type(*)(Tuple&, Functor);

@@ -112,36 +112,43 @@ namespace
 #endif
 	}
 
-	template <typename T, typename U = std::decay_t<T>>
-	bool LegalVariant(T&& arg)
-	{
-		if (std::is_same<char*, U>::value || std::is_same<const char*, U>::value)
-			return true;
-		return LegalVariantHelper(std::forward<T>(arg), var_tuple, std::index_sequence_for<VARIANTTYPES>{});
-	}
-
 	template <typename Tuple, typename Functor, size_t N>
-	decltype(auto) visit_one(Tuple& tup, Functor func)
+#ifdef C17
+	std::invoke_result_t<Functor, decltype(std::get<N>(std::declval<Tuple>()))>
+#else
+	std::result_of_t<Functor(decltype(std::get<N>(std::declval<Tuple>())))>
+#endif
+	visit_one(Tuple& tup, Functor func)
 	{
 		return func(std::get<N>(tup));
 	}
 
-	template <typename ReturnType, typename Tuple, typename Functor, size_t ... Is>
-	decltype(auto) visit(Tuple& tup, size_t index, Functor func, std::index_sequence<Is...>)
+	template <typename Tuple, typename Functor, size_t ... Is>
+	std::common_type_t<decltype(visit_one<Tuple, Functor, Is>(tup, func))...>
+	visit(Tuple& tup, size_t index, Functor func, std::index_sequence<Is...>)
 	{
-		using FT = ReturnType(*)(Tuple&, Functor);
+		using type = std::common_type_t<decltype(visit_one<Tuple, Functor, Is>(tup, func))...>;
+		using FT = type(*)(Tuple&, Functor);
 		static constexpr std::array<FT, std::tuple_size<Tuple>::value> arr =
 		{
 			&visit_one<Tuple, Functor, Is>...
 		};
 		return arr[index](tup, func);
 	}
+}
 
-	template <typename ReturnType, typename Functor, typename ... Args>
-	decltype(auto) visit(std::tuple<Args...>& tup, size_t index, Functor func)
-	{
-		return visit<ReturnType>(tup, index, func, std::index_sequence_for<Args...>{});
-	}
+template <typename T, typename U = std::decay_t<T>>
+bool LegalVariant(T&& arg)
+{
+	if (std::is_same<char*, U>::value || std::is_same<const char*, U>::value)
+		return true;
+	return LegalVariantHelper(std::forward<T>(arg), var_tuple, std::index_sequence_for<VARIANTTYPES>{});
+}
+
+template <typename Functor, typename ... Args>
+decltype(auto) visit(std::tuple<Args...>& tup, size_t index, Functor func)
+{
+	return visit(tup, index, func, std::index_sequence_for<Args...>{});
 }
 
 class Variant final
@@ -176,7 +183,7 @@ public:
 			auto& rhs_elem = rhs.get_value<decayed>();
 			data.reset( new VariantImpl<decayed>(rhs_elem) );
 		};
-		visit<void>(var_tuple, type_id, func);
+		visit(var_tuple, type_id, func);
 	}
 
 	Variant(Variant&& rhs)
@@ -223,7 +230,7 @@ public:
 			auto& rhs_elem = rhs.get_value<decayed>();
 			data.reset( new VariantImpl<decayed>(rhs_elem) );
 		};
-		visit<void>(var_tuple, type_id, func);
+		visit(var_tuple, type_id, func);
 		return *this;
 	}
 
@@ -319,7 +326,7 @@ public:
 				return false;
 			return ptr_lhs->_data == ptr_rhs->_data;
 		};
-		return visit<bool>(var_tuple, type_id, func);
+		return visit(var_tuple, type_id, func);
 	}
 
 	bool operator!=(const Variant& rhs) const

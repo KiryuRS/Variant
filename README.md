@@ -7,7 +7,7 @@ As there are variations of Variants in C++, most of the codes would require mini
 [![Build Status](https://travis-ci.com/KiryuRS/Variant.svg?branch=master)](https://travis-ci.com/KiryuRS/Variant)
 
 ## Future Implementations
-* Allowing template type deduction for Functors when using visit
+* ~~Allowing template type deduction for Functors when using visit~~
 * Support for C++11
 
 

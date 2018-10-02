@@ -1,5 +1,5 @@
 # Variant - Typeless Data Structure
-This documentation describes about a typeless Variant that provides an alternative to C++17 std::variant. The idea is inspired from a problem of passing in typeless objects through a messaging system. Even with the implementation of std::variant, users would still have to specify the supported types in that data structure - hence the incovenience for users.
+This documentation is about Typeless Variant that is an extension of C++17 std::any, along with similar concepts from C++17 std::variant. The idea is inspired from a problem of passing in typeless objects through a messaging system. Even with the implementation of std::variant or std::any, users would still have to specify the supported types in that data structure - hence the incovenience for users.
 
 As there are variations of Variants in C++, most of the codes would require minimum hard-coding of supported data types (i.e. multiple switch cases or similar to retrieve all possible types). Despite having some format to follow, the Variant class allows any supported UDT types, as long as they adhere to the criteria and adding the type into the list of supported Variant types.
 

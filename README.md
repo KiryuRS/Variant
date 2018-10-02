@@ -17,6 +17,7 @@ As there are variations of Variants in C++, most of the codes would require mini
 ### Supported C++ Versions
 * GNU with at least C++14
 * CL with at least Version 19.14
+* C++17 Build
 
 # Documentation
 ## Sanity Check

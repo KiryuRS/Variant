@@ -177,6 +177,9 @@ public:
 	Variant(const Variant& rhs)
 		: data{ }, type_id{ rhs.type_id }
 	{
+		if (!rhs)
+			return;
+		
 		auto func = [&rhs, this](auto&& elem)
 		{
 			using decayed = std::decay_t<decltype(elem)>;

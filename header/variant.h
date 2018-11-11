@@ -54,88 +54,11 @@
 #endif
 #endif
 
+#include "variant_helper.h"
 #include "variant_common.h"
 
 #include <iostream>			// std::cerr
-#include <tuple>			// std::tuple
 #include <string>			// std::string
-#include <memory>			// std::unique_ptr
-#include <typeinfo>			// typeid
-#include <utility>			// std::index_sequence_for, std::index_sequence
-#include <array>			// std::array
-#include <algorithm>			// std::find
-#include <typeindex>			// std::type_index
-#include <type_traits>			// std::common_type, std::invoke_result, std::result_of
-
-namespace
-{
-	std::tuple<VARIANTTYPES> var_tuple;
-
-	template <typename Search, typename ... Args, size_t ... N>
-	int GetSearchedIndex(const std::tuple<Args...>& tup, std::index_sequence<N...>)
-	{
-		std::array<bool, sizeof...(Args)> arr
-		{
-			( typeid(Search) == typeid(std::get<N>(tup)) ) ...
-		};
-		auto iter = std::find(arr.begin(), arr.end(), true);
-		if (iter != arr.end())
-			return iter - arr.begin();
-		return -1;
-	}
-
-	template <typename ... Args, size_t ... N>
-	std::type_index GetTypeIndex(int index, const std::tuple<Args...>& tup, std::index_sequence<N...>)
-	{
-		std::array<std::type_index, sizeof...(Args)> arr
-		{
-			( typeid(std::get<N>(tup)) )...
-		};
-
-		return arr[index];
-	}
-
-	template <typename T, typename ... Args, size_t ... Is>
-	bool LegalVariantHelper(T&& arg, const std::tuple<Args...>& tup, std::index_sequence<Is...>)
-	{
-#ifdef C17
-		return [](const auto& a0, const auto& ... rest)
-				{
-					return ((typeid(a0) == typeid(rest)) || ...);
-				}(arg, std::get<Is>(tup)...);
-#else
-		std::array<bool, sizeof...(Args)> arr
-		{
-			( typeid(arg) == typeid(std::get<Is>(tup)) ) ...
-		};
-		auto iter = std::find(arr.begin(), arr.end(), true);
-		return iter != arr.end();
-#endif
-	}
-
-	template <typename Tuple, typename Functor, size_t N>
-#ifdef C17
-	std::invoke_result_t<Functor, decltype(std::get<N>(std::declval<Tuple>()))>
-#else
-	std::result_of_t<Functor(decltype(std::get<N>(std::declval<Tuple>())))>
-#endif
-	visit_one(Tuple& tup, Functor func)
-	{
-		return func(std::get<N>(tup));
-	}
-
-	template <typename Tuple, typename Functor, size_t ... Is>
-	decltype(auto) visit_helper(Tuple& tup, size_t index, Functor func, std::index_sequence<Is...>)
-	{
-		using type = std::common_type_t<decltype(visit_one<Tuple, Functor, Is>(tup, func))...>;
-		using FT = type(*)(Tuple&, Functor);
-		static constexpr std::array<FT, std::tuple_size<Tuple>::value> arr =
-		{
-			&visit_one<Tuple, Functor, Is>...
-		};
-		return arr[index](tup, func);
-	}
-}
 
 template <typename T, typename U = std::decay_t<T>>
 bool LegalVariant(T&& arg)

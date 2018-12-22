@@ -189,15 +189,15 @@ public:
 	}
 
 	template <typename T, typename U = std::decay_t<T>>
-	U& get_value()
+	constexpr U& get_value()
 	{
-		return dynamic_cast<VariantImpl<U>&>(*data.get())._data;
+		return static_cast<VariantImpl<U>&>(*data.get())._data;
 	}
 
 	template <typename T, typename U = std::decay_t<T>>
-	const U& get_value() const
+	constexpr const U& get_value() const
 	{
-		return dynamic_cast<VariantImpl<U>&>(*data.get())._data;
+		return static_cast<VariantImpl<U>&>(*data.get())._data;
 	}
 
 	template <typename T>

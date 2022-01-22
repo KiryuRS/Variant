@@ -1,4 +1,4 @@
-#include "simple_test.h"
+#include "simple_tester.h"
 #include "../variant/variant_impl.h"
 
 TEST_BEGIN(Constructor)
@@ -18,6 +18,10 @@ TEST_BEGIN(Constructor)
 
   const ki::Variant var6{var4};
   EXPECT_TRUE(Constructor, var6.get_value<char>() == 'A');
+
+  std::vector<int> container{1,2,3,4,5};
+  ki::Variant var7{container};
+  EXPECT_TRUE(Constructor, var7.get_value<std::vector<int>>() == container);
 }
 TEST_END
 
@@ -63,8 +67,34 @@ TEST_BEGIN(Operators)
 }
 TEST_END
 
+void Foo(int, int) { }
+TEST_BEGIN(Containers)
+{
+  std::vector<int> vec{4,5,6,7};
+  int i = 0;
+  int* pi = &i;
+  std::vector<ki::Variant> container
+  {
+    'A',
+    static_cast<int>(20),
+    static_cast<short>(1),
+    vec,
+    Foo,
+    pi
+  };
+
+  EXPECT_TRUE(Containers, container[0].get_value<char>() == 'A');
+  EXPECT_TRUE(Containers, container[3].get_value<std::vector<int>>() == vec);
+  EXPECT_TRUE(Containers, container[5].get_value<int*>() == pi);
+
+  auto functor = container[4].get_value<void(*)(int, int)>();
+  functor(1,2);
+}
+TEST_END
+
 int main(void)
 {
+  AddTestContainers();
   AddTestOperators();
   AddTestAssignment();
   AddTestConstructor();

@@ -4,11 +4,14 @@
 #include <tuple>
 #include <string_view>
 #include <typeindex>
+#include <vector>
 
 // TODO: define VARIANT_TYPES macro
+// Any UDT must be defined before this macro
 // Example:
 #define VARIANT_TYPES \
-  char, short, int, long, long long
+  char, short, int, long, long long, std::string,\
+  std::vector<int>, int*, void(*)(int, int)
 
 namespace ki
 {
@@ -85,13 +88,11 @@ namespace ki
 
     template <typename StringT, typename = std::enable_if_t<!std::is_base_of_v<std::invalid_argument, StringT>>>
     VariantUnsupportedType(StringT&& string) noexcept
-      : Message{std::forward<StringT>(string)}
+      : std::invalid_argument{std::forward<StringT>(string)}
     {
     }
 
-    virtual const char* what() const noexcept override { return Message.data(); }
-
-    std::string_view Message;
+    virtual const char* what() const noexcept override { return std::invalid_argument::what(); }
   };
 
   class VariantImpl final

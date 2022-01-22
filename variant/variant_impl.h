@@ -1,16 +1,16 @@
 #pragma once
 
+#include <cstring>
 #include <memory>
+#include <string>
 #include <tuple>
-#include <string_view>
-#include <typeindex>
 #include <vector>
 
 // TODO: define VARIANT_TYPES macro
 // Any UDT must be defined before this macro
 // Example:
 #define VARIANT_TYPES \
-  char, short, int, long, long long, std::string,\
+  char, short, int, long, long long, const char*, std::string,\
   std::vector<int>, int*, void(*)(int, int)
 
 namespace ki
@@ -19,7 +19,7 @@ namespace ki
   {
     using variant_t = std::tuple<VARIANT_TYPES>;
     inline const variant_t VariantTuple;
-    inline const int16_t INVALID_TYPE = -1;
+    inline constexpr int16_t INVALID_TYPE = -1;
 
     template <typename SearchT, size_t N, size_t ... Ns>
     constexpr int16_t GetSearchedIndex(std::index_sequence<N, Ns...>) noexcept
@@ -36,33 +36,28 @@ namespace ki
     }
 
     template <typename LegalT>
-    constexpr bool IsVariantConstructible() noexcept
+    struct IsVariantConstructible
     {
-      if constexpr (std::is_same_v<char*, LegalT> || std::is_same_v<const char*, LegalT>)
-      {
-        // TODO: Either std::string or desired string classes
-        return GetSearchedIndex<std::string>(std::index_sequence_for<VARIANT_TYPES>{}) != INVALID_TYPE;
-      }
-      else
-      {
-        return GetSearchedIndex<LegalT>(std::index_sequence_for<VARIANT_TYPES>{}) != INVALID_TYPE;
-      }
-    }
+      static constexpr bool value = GetSearchedIndex<LegalT>(std::index_sequence_for<VARIANT_TYPES>{}) != INVALID_TYPE;
+    };
 
-    template <size_t N, size_t ... Ns>
-    std::type_index GetTypeIndex(int16_t index, std::index_sequence<N, Ns...>) noexcept
+    template <typename LegalT>
+    inline constexpr bool is_variant_constructible_v = IsVariantConstructible<LegalT>::value;
+
+    template <typename SearchT, size_t N, size_t ... Ns>
+    bool IsTypeMatched(int16_t index, std::index_sequence<N, Ns...>) noexcept
     {
       if constexpr (sizeof...(Ns))
       {
         return index == N
-          ? typeid(std::tuple_element_t<N, variant_t>)
-          : GetTypeIndex(index, std::integer_sequence<size_t, Ns...>{});
+          ? std::is_same_v<std::tuple_element_t<N, variant_t>, SearchT>
+          : IsTypeMatched<SearchT>(index, std::integer_sequence<size_t, Ns...>{});
       }
       else
       {
         return index == N
-          ? typeid(std::tuple_element_t<N, variant_t>)
-          : typeid(void);
+          ? std::is_same_v<std::tuple_element_t<N, variant_t>, SearchT>
+          : false;
       }
     }
 
@@ -81,19 +76,6 @@ namespace ki
       }
     }
   }
-
-  struct VariantUnsupportedType : std::invalid_argument
-  {
-    VariantUnsupportedType() noexcept = default;
-
-    template <typename StringT, typename = std::enable_if_t<!std::is_base_of_v<std::invalid_argument, StringT>>>
-    VariantUnsupportedType(StringT&& string) noexcept
-      : std::invalid_argument{std::forward<StringT>(string)}
-    {
-    }
-
-    virtual const char* what() const noexcept override { return std::invalid_argument::what(); }
-  };
 
   class VariantImpl final
   {
@@ -114,11 +96,11 @@ namespace ki
       }
     };
 
-    template <typename T>
-    bool is_same_type(const T& other) const noexcept
+    template <typename TypeT>
+    bool is_same_type() const noexcept
     {
       return TypeId != INVALID_TYPE
-        ? GetTypeIndex(TypeId, std::index_sequence_for<VARIANT_TYPES>{}) == typeid(other)
+        ? IsTypeMatched<TypeT>(TypeId, std::index_sequence_for<VARIANT_TYPES>{})
         : false;
     }
 
@@ -139,8 +121,8 @@ namespace ki
         [this, &other](auto&& elem)
         {
           using decayed_t = std::decay_t<decltype(elem)>;
-          auto& otherElem = other.get_value<decayed_t>();
-          Holder.reset(new HolderImpl<decayed_t>{otherElem});
+          const auto& otherElem = other.get_value<decayed_t>();
+          Holder = std::make_unique<HolderImpl<decayed_t>>(otherElem);
         };
       Visit(TypeId, functor, std::index_sequence_for<VARIANT_TYPES>{});
     }
@@ -156,28 +138,13 @@ namespace ki
     template <
       typename ValueT,
       typename DecayedT = std::decay_t<ValueT>,
-      typename = std::enable_if_t<!std::is_same_v<DecayedT, VariantImpl>>>
+      typename = std::enable_if_t<
+        !std::is_same_v<DecayedT, VariantImpl> &&
+        is_variant_constructible_v<DecayedT>>>
     VariantImpl(ValueT&& value)
-      : Holder{}
-      , TypeId{INVALID_TYPE}
+      : Holder{std::make_unique<HolderImpl<DecayedT>>(std::forward<ValueT>(value))}
+      , TypeId{GetSearchedIndex<DecayedT>(std::index_sequence_for<VARIANT_TYPES>{})}
     {
-      if constexpr (IsVariantConstructible<DecayedT>())
-      {
-        if constexpr (std::is_same_v<char*, DecayedT> || std::is_same_v<const char*, DecayedT>)
-        {
-          TypeId = GetSearchedIndex<std::string>(std::index_sequence_for<VARIANT_TYPES>{});
-          Holder.reset(new HolderImpl<std::string>(std::forward<ValueT>(value)));
-        }
-        else
-        {
-          TypeId = GetSearchedIndex<DecayedT>(std::index_sequence_for<VARIANT_TYPES>{});
-          Holder.reset(new HolderImpl<DecayedT>(std::forward<ValueT>(value)));
-        }
-      }
-      else
-      {
-        throw VariantUnsupportedType("Type is not supported");
-      }
     }
 
     VariantImpl& operator=(const VariantImpl& other)
@@ -194,8 +161,8 @@ namespace ki
         [this, &other](auto&& elem)
         {
           using decayed_t = std::decay_t<decltype(elem)>;
-          auto& otherElem = other.get_value<decayed_t>();
-          Holder.reset(new HolderImpl<decayed_t>(otherElem));
+          const auto& otherElem = other.get_value<decayed_t>();
+          Holder = std::make_unique<HolderImpl<decayed_t>>(otherElem);
         };
       Visit(TypeId, functor, std::index_sequence_for<VARIANT_TYPES>{});
 
@@ -211,27 +178,14 @@ namespace ki
 
     template <
       typename ValueT,
-      typename DecayT = std::decay_t<ValueT>,
-      typename = std::enable_if_t<!std::is_same_v<DecayT, VariantImpl>>>
+      typename DecayedT = std::decay_t<ValueT>,
+      typename = std::enable_if_t<
+        !std::is_same_v<DecayedT, VariantImpl> &&
+        is_variant_constructible_v<DecayedT>>>
     VariantImpl& operator=(ValueT&& value)
     {
-      if constexpr (IsVariantConstructible<DecayT>())
-      {
-        if constexpr (std::is_same_v<char*, DecayT> || std::is_same_v<const char*, DecayT>)
-        {
-          TypeId = GetSearchedIndex<std::string>(std::index_sequence_for<VARIANT_TYPES>{});
-          Holder.reset(new HolderImpl<std::string>(std::forward<ValueT>(value)));
-        }
-        else
-        {
-          TypeId = GetSearchedIndex<DecayT>(std::index_sequence_for<VARIANT_TYPES>{});
-          Holder.reset(new HolderImpl<DecayT>(std::forward<ValueT>(value)));
-        }
-      }
-      else
-      {
-        throw VariantUnsupportedType("Type is not supported");
-      }
+      TypeId = GetSearchedIndex<DecayedT>(std::index_sequence_for<VARIANT_TYPES>{});
+      Holder = std::make_unique<HolderImpl<DecayedT>>(std::forward<ValueT>(value));
       return *this;
     }
 
@@ -255,35 +209,28 @@ namespace ki
     template <typename ConvertT>
     operator ConvertT() const
     {
-      using decayed_t = std::decay_t<ConvertT>;
-      return get_value<decayed_t>();
+      return get_value<ConvertT>();
     }
 
-    template <
-      typename ValueT,
-      typename DecayT = std::decay_t<ValueT>,
-      typename = std::enable_if_t<!std::is_same_v<DecayT, VariantImpl>>>
-    bool operator==(const ValueT& value) const noexcept
+    template <typename ValueT>
+    bool operator==(const ValueT& other) const noexcept
     {
-      return is_same_type(value)
-        ? get_value<ValueT>() == value
-        : false;
+      if constexpr (std::is_same_v<ValueT, VariantImpl>)
+      {
+        return TypeId == other.TypeId;
+      }
+      else
+      {
+        return is_same_type<ValueT>()
+          ? get_value<ValueT>() == other
+          : false;
+      }
     }
 
     template <typename ValueT>
     bool operator!=(const ValueT& value) const noexcept
     {
       return !operator==(value);
-    }
-
-    bool operator==(const VariantImpl& other) const noexcept
-    {
-      return TypeId == other.TypeId;
-    }
-
-    bool operator!=(const VariantImpl& other) const noexcept
-    {
-      return !operator==(other);
     }
 
     int16_t get_type_id() const noexcept { return TypeId; }

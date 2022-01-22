@@ -22,6 +22,12 @@ TEST_BEGIN(Constructor)
   std::vector<int> container{1,2,3,4,5};
   ki::Variant var7{container};
   EXPECT_TRUE(Constructor, var7.get_value<std::vector<int>>() == container);
+
+  ki::Variant var8{"Hello World"};
+  EXPECT_TRUE(Constructor, !std::strcmp(var8.get_value<const char*>(), "Hello World"));
+
+  var8 = std::string{"Goodbye World"};
+  EXPECT_TRUE(Constructor, var8.get_value<std::string>() == std::string{"Goodbye World"});
 }
 TEST_END
 
